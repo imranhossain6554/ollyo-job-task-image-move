@@ -29,7 +29,7 @@ const HomePage = () => {
       [imageSrc]: !prevSelectedImages[imageSrc],
     }));
   };
-
+  console.log("gg", selectedImages);
   return (
     <div className="bg-white lg:container lg:mx-auto mt-8 mb-16">
       <div className="flex justify-between mt-6">
