@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 const HomePage = () => {
   const [dataImage, setDataImage] = useState([]);
   const [selectedImages, setSelectedImages] = useState({});
+  const [hoveredImage, setHoveredImage] = useState(null);
 
   const getData = () => {
     fetch("../../../imageData.json", {
@@ -23,13 +24,13 @@ const HomePage = () => {
     getData();
   }, []);
 
-  const handleImageSelect = (imageSrc) => {
+  const handleImageClick = (imageSrc) => {
     setSelectedImages((prevSelectedImages) => ({
       ...prevSelectedImages,
       [imageSrc]: !prevSelectedImages[imageSrc],
     }));
   };
-  console.log("gg", selectedImages);
+  console.log("xxx", selectedImages);
   return (
     <div className="bg-white lg:container lg:mx-auto mt-8 mb-16">
       <div className="flex justify-between mt-6">
@@ -47,12 +48,20 @@ const HomePage = () => {
             className={`relative overflow-hidden w-full border-solid border-2 rounded-md border-gray-200 ${
               index === 0 ? "col-span-2 row-span-2 " : ""
             }`}
-            onMouseEnter={() => handleImageSelect(imageData.image)}
-            onMouseLeave={() => handleImageSelect(imageData.image)}
+            onMouseEnter={() => setHoveredImage(imageData.image)}
+            onMouseLeave={() => setHoveredImage(null)}
           >
-            <div className="w-96 h-96 absolute bg-[#9c9898] top-0 opacity-0 hover:opacity-50 max-w-xs transition duration-500 ease-in-out hover:scale-100"></div>
-            <img src={imageData.image} alt={`Image ${index}`} />
-            {selectedImages[imageData.image] && (
+            <div
+              className={`w-96 h-96 absolute bg-[#9c9898] top-0 ${
+                hoveredImage === imageData.image ? "opacity-50" : "opacity-0"
+              } max-w-xs transition duration-500 ease-in-out`}
+            ></div>
+            <img
+              src={imageData.image}
+              alt={`Image ${index}`}
+              onClick={() => handleImageClick(imageData.image)}
+            />
+            {hoveredImage === imageData.image && (
               <label
                 className="absolute top-0 left-0 mt-2 ml-2 bg-transparent"
                 style={{ padding: "4px" }}
@@ -60,7 +69,7 @@ const HomePage = () => {
                 <input
                   type="checkbox"
                   className="mr-2 bg-transparent"
-                  onChange={() => handleImageSelect(imageData.image)}
+                  onChange={() => handleImageClick(imageData.image)}
                 />
                 Select
               </label>
