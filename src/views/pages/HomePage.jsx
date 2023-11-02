@@ -48,29 +48,30 @@ const HomePage = () => {
             className={`relative  overflow-hidden w-full border-solid border-2 rounded-md border-gray-200 ${
               index === 0 ? "col-span-2 row-span-2 " : " "
             }`}
-            onMouseEnter={() => setHoveredImage(imageData.image)}
+            onMouseEnter={() => setHoveredImage(imageData._id)}
             onMouseLeave={() => setHoveredImage(null)}
           >
             <div
               className={`absolute w-full h-full bg-[#9c9898] top-0 ${
-                hoveredImage === imageData.image ? "opacity-50" : "opacity-0"
+                hoveredImage === imageData._id ? "opacity-50" : "opacity-0"
               } max-w-xl transition duration-500 ease-in-out`}
             ></div>
             <img
               src={imageData.image}
               className="w-full h-full "
               alt={`Image ${index}`}
-              onClick={() => handleImageClick(imageData.image)}
+              onClick={() => handleImageClick(imageData._id)}
             />
-            {hoveredImage === imageData.image && (
+            {hoveredImage === imageData._id && (
               <label
                 className="absolute top-0 left-0 mt-2 ml-2 bg-transparent"
                 style={{ padding: "4px" }}
               >
                 <input
                   type="checkbox"
+                  checked={selectedImages[imageData._id]}
                   className="mr-2 bg-transparent"
-                  onChange={() => handleImageClick(imageData.image)}
+                  onChange={() => handleImageClick(imageData._id)}
                 />
                 Select
               </label>
