@@ -54,6 +54,8 @@ const HomePage = () => {
             <div
               className={`absolute w-full h-full bg-[#9c9898] top-0 ${
                 hoveredImage === imageData._id ? "opacity-50" : "opacity-0"
+              } ${
+                selectedImages[imageData._id] ? "opacity-50" : ""
               } max-w-xl transition duration-500 ease-in-out`}
             ></div>
             <img
@@ -69,8 +71,7 @@ const HomePage = () => {
               >
                 <input
                   type="checkbox"
-                  checked={selectedImages[imageData._id]}
-                  className="mr-2 bg-transparent"
+                  defaultChecked={selectedImages[imageData._id] ? true : false}
                   onChange={() => handleImageClick(imageData._id)}
                 />
                 Select
