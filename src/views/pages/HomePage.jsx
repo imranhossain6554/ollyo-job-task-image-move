@@ -41,23 +41,24 @@ const HomePage = () => {
       </div>
       <div className="h-1 w-full border-b-[1px] border-black mb-12 "></div>
 
-      <div className="lg:container lg:mx-auto mt-8 mb-10 grid grid-cols-5 gap-4 p-8 relative">
+      <div className=" lg:container lg:mx-auto mt-8 mb-10 grid grid-cols-5 gap-4 p-8 relative ">
         {dataImage.map((imageData, index) => (
           <div
             key={index}
-            className={`relative overflow-hidden w-full border-solid border-2 rounded-md border-gray-200 ${
-              index === 0 ? "col-span-2 row-span-2 " : ""
+            className={`relative  overflow-hidden w-full border-solid border-2 rounded-md border-gray-200 ${
+              index === 0 ? "col-span-2 row-span-2 " : " "
             }`}
             onMouseEnter={() => setHoveredImage(imageData.image)}
             onMouseLeave={() => setHoveredImage(null)}
           >
             <div
-              className={`w-96 h-96 absolute bg-[#9c9898] top-0 ${
+              className={`absolute w-full h-full bg-[#9c9898] top-0 ${
                 hoveredImage === imageData.image ? "opacity-50" : "opacity-0"
-              } max-w-xs transition duration-500 ease-in-out`}
+              } max-w-xl transition duration-500 ease-in-out`}
             ></div>
             <img
               src={imageData.image}
+              className="w-full h-full "
               alt={`Image ${index}`}
               onClick={() => handleImageClick(imageData.image)}
             />
