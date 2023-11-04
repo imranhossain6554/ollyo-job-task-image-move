@@ -13,7 +13,7 @@ const SortableItem = (props) => {
     }));
   };
   console.log("imageDatasss:", imageData);
-  console.log("index:", index);
+
 
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id: props.id });
@@ -37,6 +37,7 @@ const SortableItem = (props) => {
     >
       <div
         {...listeners}
+        style={style}
         className={`absolute w-full h-full bg-[#9c9898] top-0 ${
           hoveredImage === imageData.image ? "opacity-50" : "opacity-0"
         } max-w-xl transition duration-500 ease-in-out`}

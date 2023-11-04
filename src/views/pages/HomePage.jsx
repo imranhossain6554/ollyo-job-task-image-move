@@ -99,18 +99,19 @@ const HomePage = () => {
 
   const handleDragEnd = (event) => {
     const { active, over } = event;
-    console.log("hactivee:>>>>>", active);
-    console.log("overxx>>>>:", over.id.id);
-
-    if (active.id.id !== over.id.id) {
+    if (!active || !over) return;
+  
+    const oldIndex = dataImage.findIndex((item) => item.id === active.id);
+    const newIndex = dataImage.findIndex((item) => item.id === over.id);
+  
+    if (oldIndex !== newIndex) {
       setDataImage((items) => {
-        console.log("xxx++++", items);
-        const preIndex = items.findIndex((item) => item.id === active.id);
-        const nextIndex = items.findIndex((item) => item.id === over.id);
-        return arrayMove(items, preIndex, nextIndex);
+        return arrayMove(items, oldIndex, newIndex);
       });
     }
   };
+  
+
   console.log("xxx", dataImage);
   return (
     <div className="bg-white lg:container lg:mx-auto mt-8 mb-16">
@@ -127,28 +128,32 @@ const HomePage = () => {
         <DndContext
           sensors={sensors}
           collisionDetection={closestCenter}
+      
           onDragEnd={handleDragEnd}
         >
           <SortableContext
+        
             items={dataImage}
             strategy={verticalListSortingStrategy}
           >
+            
             {dataImage.length > 0 &&
-              dataImage.map((imageData, index) => (
-                <SortableItem
-                  key={imageData}
-                  id={imageData}
-                  index={index}
-                  imageData={imageData}
-                />
-              ))}
+  dataImage.map((imageData, index) => (
+    <SortableItem
+      key={imageData.id} // Use imageData.id as the key
+      id={imageData.id}
+      index={index}
+      imageData={imageData}
+    />
+  ))}
+
           </SortableContext>
         </DndContext>
       </div>
     </div>
   );
-
-  /*  function handleDragEnd(event) {
+  
+ /*   function handleDragEnd(event) {
     const { active, over } = event;
 
     if (active.id !== over.id) {
@@ -159,7 +164,7 @@ const HomePage = () => {
         return arrayMove(items, oldIndex, newIndex);
       });
     }
-  } */
+  } */ 
 };
 
 export default HomePage;
