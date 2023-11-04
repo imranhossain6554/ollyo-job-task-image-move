@@ -1,9 +1,10 @@
-import React, { useState } from "react";
 
+import { useEffect, useState } from "react";
+import toast, { Toaster } from "react-hot-toast";
 import {
   DndContext,
-  KeyboardSensor,
-  PointerSensor,
+  MouseSensor,
+  TouchSensor,
   closestCenter,
   useSensor,
   useSensors,
@@ -11,160 +12,151 @@ import {
 import {
   SortableContext,
   arrayMove,
-  sortableKeyboardCoordinates,
-  verticalListSortingStrategy,
+  rectSortingStrategy,
 } from "@dnd-kit/sortable";
-
 import SortableItem from "../components/SortableItem";
 
-const HomePage = () => {
-  const [dataImage, setDataImage] = useState([
-    {
-      id: "6542122114bd17dd60520932",
-      image: "../../../src/assets/images/image-1.webp",
-    },
-    {
-      id: "65421221360151f6314eef3d",
-      image: "../../../src/assets/images/image-10.jpeg",
-    },
-    {
-      id: "65421221a96c7c915bfa2b0f",
-      image: "../../../src/assets/images/image-11.jpeg",
-    },
-    {
-      id: "6542122191e8ab4c3a855218",
-      image: "../../../src/assets/images/image-2.webp",
-    },
-    {
-      id: "65421221948499352502c2b4",
-      image: "../../../src/assets/images/image-3.webp",
-    },
-    {
-      id: "65421221f868c5f417cc3726",
-      image: "../../../src/assets/images/image-4.webp",
-    },
-    {
-      id: "65421221cba2633496648a95",
-      image: "../../../src/assets/images/image-5.webp",
-    },
-    {
-      id: "65421221b33ee6c33702ahghf84",
-      image: "../../../src/assets/images/image-6.webp",
-    },
-    {
-      id: "65421221b33ee6c33702a55f84",
-      image: "../../../src/assets/images/image-7.webp",
-    },
-    {
-      id: "65421221b33ee6c3370552af84",
-      image: "../../../src/assets/images/image-8.webp",
-    },
-    {
-      id: "65421221b33ee6c3370r2af894",
-      image: "../../../src/assets/images/image-9.webp",
-    },
-  ]);
-  const [selectedImages, setSelectedImages] = useState({}); // Initialize as an empty object
+function HomePage() {
+  const [data, setData] = useState([]);
+  const [selectedImages, setSelectedImages] = useState([]);
+  const sensors = useSensors(useSensor(MouseSensor), useSensor(TouchSensor));
 
-  const [hoveredImage, setHoveredImage] = useState(null);
-
-  /*   const getData = () => {
-    fetch("../../../imageData.json", {
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-    })
-      .then(function (response) {
-        return response.json();
-      })
-      .then(function (myJson) {
-        setDataImage(myJson);
+  useEffect(() => {
+    fetch("../../../imageData.json")
+      .then((response) => response.json())
+      .then((data) => {
+        setData(data);
       })
       .catch((error) => {
         console.error("Error fetching data:", error);
       });
+  }, []);
+
+  //handle image selection
+  const handleSelectionChange = (isSelected, imageId) => {
+    setSelectedImages((prevSelected) => {
+      if (isSelected) {
+        return [...prevSelected, imageId];
+      } else {
+        return prevSelected.filter((image) => image !== imageId);
+      }
+    });
+  };
+  //handle unselect all pictures
+  const handleUncheckAll = () => {
+    setSelectedImages([]);
+    toast.error("All images DeSelected");
+  };
+  //handle delete pictures
+  const handleDelete = () => {
+    setData(data.filter((imgData) => !selectedImages.includes(imgData.id)));
+    setSelectedImages([]);
+    toast.error("Image Deleted succesfully");
+  };
+  //image upload
+  const handleUpload = (event) => {
+    const files = event.target.files;
+    const newImageData = Array.from(files).map((file, index) => ({
+      id: data.length + index + 1, // Generate a unique ID for image
+      image: URL.createObjectURL(file),
+    }));
+    setData((prevData) => [...prevData, ...newImageData]);
+    toast.success("Image uploaded succesfully");
   };
 
-  useEffect(() => {
-    getData();
-  }, []); */
-
-  const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
-  );
-
+  // Handle drag and drop
   const handleDragEnd = (event) => {
     const { active, over } = event;
-    if (!active || !over) return;
-  
-    const oldIndex = dataImage.findIndex((item) => item.id === active.id);
-    const newIndex = dataImage.findIndex((item) => item.id === over.id);
-  
-    if (oldIndex !== newIndex) {
-      setDataImage((items) => {
-        return arrayMove(items, oldIndex, newIndex);
+    if (active.id !== over.id) {
+      setData((items) => {
+        const preIndex = items.findIndex((item) => item.id === active.id);
+        const nextIndex = items.findIndex((item) => item.id === over.id);
+        return arrayMove(items, preIndex, nextIndex);
       });
     }
   };
-  
 
-  console.log("xxx", dataImage);
   return (
-    <div className="bg-white lg:container lg:mx-auto mt-8 mb-16">
-      <div className="flex justify-between mt-6">
-        <p className="ml-6 mt-6">3 files selected</p>
-        <button className="text-[red] font-bold mr-6 mt-6" type="button">
-          Delete Files
-        </button>
-      </div>
-      <div className="h-1 w-full border-b-[1px] border-black mb-12 "></div>
+    <div className="bg-slate-200 h-auto">
+      <Toaster position="top-center"></Toaster>
+      <div className="flex justify-center max-h-screen lg:py-20 py-10 w-full">
+        <div className="bg-white w-[450px] sm:w-[600px] lg:w-[800px] mx-4 h-full rounded-lg">
+          <div className="flex justify-between mx-5 py-3">
+            {selectedImages.length > 0 ? (
+              <h1 className="flex items-center font-bold">
+                <span className="mr-2">
+                  <input
+                    type="checkbox"
+                    checked={selectedImages.length > 0}
+                    onChange={handleUncheckAll}
+                  />
+                </span>{" "}
+                <span className="mr-1">{selectedImages.length}</span>
+                Files Selected
+              </h1>
+            ) : (
+              <h1 className="font-semibold">Gallery</h1>
+            )}
 
-      {/*   <div className="lg:container lg:mx-auto mt-8 mb-10 grid grid-cols-5 gap-4 p-8 relative "></div> */}
-      <div className="lg:container lg:mx-auto mt-8 mb-10 grid grid-cols-5 gap-4 p-8 relative ">
-        <DndContext
-          sensors={sensors}
-          collisionDetection={closestCenter}
-      
-          onDragEnd={handleDragEnd}
-        >
-          <SortableContext
-        
-            items={dataImage}
-            strategy={verticalListSortingStrategy}
+            {selectedImages.length > 0 && (
+              <button
+                onClick={handleDelete}
+                className="text-red-600 font-bold text-xs"
+              >
+                {selectedImages.length > 1 ? (
+                  <span>Delete files</span>
+                ) : (
+                  <span>Delete file</span>
+                )}
+              </button>
+            )}
+          </div>
+          <hr />
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
           >
-            
-            {dataImage.length > 0 &&
-  dataImage.map((imageData, index) => (
-    <SortableItem
-      key={imageData.id} // Use imageData.id as the key
-      id={imageData.id}
-      index={index}
-      imageData={imageData}
-    />
-  ))}
-
-          </SortableContext>
-        </DndContext>
+            <SortableContext items={data} strategy={rectSortingStrategy}>
+              <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 p-6">
+                {data.map((imgData, index) => (
+                  <SortableItem
+                    key={imgData.id}
+                    id={imgData.id}
+                    image={imgData.image}
+                    index={index}
+                    handleSelection={handleSelectionChange}
+                    selected={selectedImages.includes(imgData.id)}
+                  />
+                ))}
+                <div className="w-auto h-auto border-2 border-dashed text-center">
+                  <label className=" inset-0 cursor-pointer">
+                    <input
+                      type="file"
+                      className="hidden"
+                      accept="image/*"
+                      multiple
+                      onChange={handleUpload}
+                    />
+                    <div className="flex flex-col items-center justify-center h-full  ">
+                      <img
+                        src="https://upload.wikimedia.org/wikipedia/commons/6/6b/Picture_icon_BLACK.svg"
+                        alt=""
+                        className="w-4 h-4 mb-3"
+                      />
+                      <p className="font-semibold text-xs lg:text-base">
+                        Add Images
+                      </p>
+                    </div>
+                  </label>
+                </div>
+              </div>
+            </SortableContext>
+          </DndContext>
+        </div>
       </div>
     </div>
   );
-  
- /*   function handleDragEnd(event) {
-    const { active, over } = event;
-
-    if (active.id !== over.id) {
-      setDataImage((items) => {
-        const oldIndex = items.indexOf(active.id);
-        const newIndex = items.indexOf(over.id);
-
-        return arrayMove(items, oldIndex, newIndex);
-      });
-    }
-  } */ 
-};
+}
 
 export default HomePage;

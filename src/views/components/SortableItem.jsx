@@ -1,67 +1,63 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import React, { useState } from "react";
+
 const SortableItem = (props) => {
-  const { imageData, index, id } = props;
-  const [selectedImages, setSelectedImages] = useState({}); // Initialize as an empty object
+  const { id, selected, image, index, handleSelection } = props;
 
-  const [hoveredImage, setHoveredImage] = useState(null);
-  const handleImageClick = (imageSrc) => {
-    setSelectedImages((prevSelectedImages) => ({
-      ...prevSelectedImages,
-      [imageSrc]: !prevSelectedImages[imageSrc],
-    }));
-  };
-  console.log("imageDatasss:", imageData);
+  const sortable = useSortable({ id });
+  const { attributes, listeners, setNodeRef, transform, transition } = sortable;
 
-
-  const { attributes, listeners, setNodeRef, transform, transition } =
-    useSortable({ id: props.id });
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
   };
+  const inlineStyle = {
+    transformOrigin: "0 0",
+    ...style,
+  };
+
+  const toggleSelected = () => {
+    handleSelection(!selected, id);
+  };
+
   return (
     <div
-      ref={setNodeRef}
-      style={style}
-      {...attributes}
-      className={`relative overflow-hidden w-full border-solid border-2 rounded-md border-gray-200 ${
-        index === 0 ? "col-span-2 row-span-2" : ""
-      } ${
-        (hoveredImage === imageData.id || selectedImages[imageData.id]) &&
-        "opacity-50"
+      className={`border rounded-lg ${
+        index === 0 ? "col-span-2 row-span-2" : null
       }`}
-      onMouseEnter={() => setHoveredImage(imageData.id)}
-      onMouseLeave={() => setHoveredImage(null)}
     >
       <div
-        {...listeners}
-        style={style}
-        className={`absolute w-full h-full bg-[#9c9898] top-0 ${
-          hoveredImage === imageData.image ? "opacity-50" : "opacity-0"
-        } max-w-xl transition duration-500 ease-in-out`}
-      ></div>
-      <img
-        src={imageData.image}
-        className="w-full h-full"
-        alt={`Image ${index}`}
-        onClick={() => handleImageClick(imageData.id)}
-      />
-      {(hoveredImage === imageData.id || selectedImages[imageData.id]) && (
-        <label
-          className="absolute top-0 left-0 mt-2 ml-2 bg-transparent"
-          style={{ padding: "4px" }}
+        ref={setNodeRef}
+        style={inlineStyle}
+        {...attributes}
+        className={` relative group z-30 h-full`}
+      >
+        <div
+          {...listeners}
+          className="relative overflow-hidden rounded-lg h-full"
         >
-          <input
-            type="checkbox"
-            checked={selectedImages[imageData.id]}
-            className="mr-2 bg-transparent"
-            onChange={() => handleImageClick(imageData.id)}
+          <img
+            src={image}
+            alt=""
+            className={`h-full w-full ${selected ? "opacity-50" : ""}`}
           />
-          Select
-        </label>
-      )}
+          <div
+            className={`${
+              selected
+                ? ""
+                : "h-80  w-80 bg-gray-900 opacity-0 group-hover:opacity-50 absolute top-0 duration-500"
+            }`}
+          ></div>
+        </div>
+        <input
+          onChange={toggleSelected}
+          type="checkbox"
+          className={`absolute top-3 left-3 lg:opacity-0 lg:group-hover:opacity-100 z-50 ${
+            selected ? "!opacity-100" : ""
+          }`}
+          checked={selected}
+        />
+      </div>
     </div>
   );
 };
